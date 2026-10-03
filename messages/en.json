@@ -1,0 +1,150 @@
+{
+  "common": {
+    "appName": "Sinan",
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search",
+    "loading": "Loading…",
+    "noResults": "Nothing found",
+    "today": "Today",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "language": "Language",
+    "done": "Done"
+  },
+  "marketing": {
+    "nav": {
+      "patients": "For patients",
+      "doctors": "For doctors",
+      "packages": "Packages",
+      "join": "Join us",
+      "signIn": "Sign in"
+    },
+    "hero": {
+      "title": "Your dental care,",
+      "titleAccent": "in your pocket.",
+      "subtitle": "Sinan connects patients with dentists, and gives clinics everything they need to run — bookings, records, and payments, in one calm place.",
+      "ctaPatient": "I'm a patient",
+      "ctaDoctor": "I'm a doctor",
+      "stat1": "features in one app",
+      "stat2": "booking, any hour",
+      "stat3": "your data, private"
+    },
+    "about": {
+      "eyebrow": "Who we are",
+      "title": "One platform for",
+      "titleAccent": "every smile.",
+      "body": "Sinan is a Lebanese dental platform. Patients find the right dentist and book in seconds; clinics get a modern system that handles the whole day — no paper, no chaos, no lost files.",
+      "v1Title": "Trusted",
+      "v1Body": "Real reviews from real visits, and health records protected clinic by clinic.",
+      "v2Title": "Secure",
+      "v2Body": "Your medical history and dental chart are yours — shared only with the dentists you choose.",
+      "v3Title": "Fast",
+      "v3Body": "Book, confirm, remind, collect — everything moves in a tap."
+    },
+    "patients": {
+      "eyebrow": "For patients",
+      "title": "Find your dentist. Book in seconds.",
+      "subtitle": "Everything you need to take care of your teeth, in one app.",
+      "p1Title": "Find a dentist",
+      "p1Body": "Browse trusted dentists near you, filter by area, and see real ratings.",
+      "p2Title": "Book instantly",
+      "p2Body": "Pick a time that suits you and send a request — the clinic confirms it.",
+      "p3Title": "Your teeth, online",
+      "p3Body": "See the exact dental chart your dentist drew — your health, in your hand.",
+      "p4Title": "One health profile",
+      "p4Body": "Your medical history follows you to every clinic you choose to visit.",
+      "p5Title": "Smart reminders",
+      "p5Body": "A gentle nudge before each appointment so you never miss one.",
+      "p6Title": "Rate your visit",
+      "p6Body": "Share an honest review after each visit and help others choose well.",
+      "iosSoon": "App Store — soon",
+      "androidSoon": "Google Play — soon"
+    },
+    "doctors": {
+      "eyebrow": "For doctors",
+      "title": "Run your whole clinic from one screen.",
+      "subtitle": "Sinan gives your clinic a modern engine — and puts you in front of new patients.",
+      "d1Title": "Smart calendar",
+      "d1Body": "Every appointment, walk-in and overbook in one clean day view.",
+      "d2Title": "Patient records",
+      "d2Body": "History, notes, treatment plans and payments — one file per patient.",
+      "d3Title": "Finances",
+      "d3Body": "Income, expenses, balances and installments, tracked automatically.",
+      "d4Title": "Lab tracking",
+      "d4Body": "Follow every case out at the lab, from sent to seated.",
+      "d5Title": "Digital odontogram",
+      "d5Body": "A precise, tap-to-edit dental chart your patients can see too.",
+      "d6Title": "New patients",
+      "d6Body": "Appear in the marketplace and accept bookings from the app."
+    },
+    "how": {
+      "title": "Getting started is simple.",
+      "s1Title": "Tell us about you",
+      "s1Body": "Leave your clinic's details — name, area, and how to reach you.",
+      "s2Title": "We set you up",
+      "s2Body": "Our team calls within a day, agrees the plan, and creates your account.",
+      "s3Title": "Go live",
+      "s3Body": "Start booking, charting and collecting the same day."
+    },
+    "packages": {
+      "eyebrow": "Packages",
+      "title": "Pick what your clinic needs.",
+      "subtitle": "Simple plans that grow with you — pay only for what you use.",
+      "popular": "Most popular",
+      "cta": "Get started",
+      "note": "Final pricing is agreed on a quick call — no card needed to start.",
+      "feat": {
+        "ONLINE_BOOKING": "Online booking & marketplace",
+        "FINANCES": "Finances & installments",
+        "REPORTS": "Reports & analytics",
+        "LAB": "Lab tracking",
+        "WAITLIST": "Waiting list",
+        "ODONTOGRAM": "Digital odontogram"
+      },
+      "baseCalendar": "Smart calendar",
+      "baseRecords": "Patient records",
+      "mo": "month",
+      "yr": "year",
+      "none": "Plans coming soon — contact us to get started."
+    },
+    "join": {
+      "title": "Ready to join Sinan?",
+      "subtitle": "Leave your details and our team will reach out within 24 hours to set your clinic up.",
+      "j1": "Choose your plan",
+      "j2": "24/7 support",
+      "j3": "Live the same day",
+      "formTitle": "Join as a doctor",
+      "name": "Your name",
+      "clinic": "Clinic name",
+      "area": "Clinic area",
+      "send": "Send request",
+      "formNote": "We'll call you — nothing is charged now.",
+      "sentTitle": "Request received!",
+      "sentBody": "Our team will contact you within 24 hours to go over the details.",
+      "failed": "Could not send — try again."
+    },
+    "footer": {
+      "tagline": "Dental care, in your pocket.",
+      "privacy": "Privacy Policy",
+      "terms": "Terms & Conditions",
+      "copyright": "© Sinan. All rights reserved."
+    },
+    "tour": {
+      "eyebrow": "App tour",
+      "t1Title": "Find your dentist",
+      "t1Body": "Browse trusted dentists near you, filter by area, and see real ratings — all in seconds.",
+      "t2Title": "Your day, at a glance",
+      "t2Body": "Your next visit, doctors near you, and every recent booking, the moment you open the app.",
+      "t3Title": "Your teeth, online",
+      "t3Body": "See the exact dental chart your dentist drew — your health, always in your hand."
+    }
+  },
+  "legalPublic": {
+    "termsTitle": "Terms & Conditions",
+    "privacyTitle": "Privacy Policy",
+    "appName": "Sinan — dental care, in your pocket",
+    "unavailable": "This document is being prepared. Please check back soon.",
+    "footer": "© Sinan. Questions? Contact us from the app menu."
+  }
+}

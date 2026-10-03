@@ -1,0 +1,405 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+/**
+ * Base. Deliberately spare — the dashboard is data-dense, and anything added
+ * here is added to every screen.
+ */
+@layer base {
+  html {
+    /* ~13px base in the dashboard. Dense on purpose: the user is a dentist or a
+     * busy receptionist who needs a lot of information on one screen. */
+    font-size: 15px;
+  }
+
+  body {
+    background: var(--color-sand-50);
+    color: var(--color-sand-900);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    line-height: var(--leading-snug);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Keyboard navigation is a requirement, not a nicety: the secretary is faster
+   * than the mouse. A visible focus ring on every interactive element is what
+   * makes that usable, so it is never removed. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-500);
+    outline-offset: 1px;
+  }
+
+  th {
+    font-weight: 600;
+    text-align: start; /* logical — flips for RTL automatically */
+    color: var(--color-sand-600);
+  }
+}
+
+/* ── Sinan glass identity ─────────────────────────────────────────────────────
+ * The app's teal-glass language, on the web: frosted panels over the teal
+ * gradient, soft entrance animations, and a gentle transition on every page.
+ */
+
+/* Full-bleed teal gradient (the app's exact ramp) + floating light blobs. */
+.sinan-bg {
+  position: relative;
+  background: linear-gradient(160deg, #1b7681 0%, #2a8a93 28%, #379aa1 62%, #46a6ac 100%);
+  isolation: isolate;
+  overflow: hidden;
+}
+.sinan-bg::before,
+.sinan-bg::after {
+  content: '';
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  z-index: -1;
+  pointer-events: none;
+}
+.sinan-bg::before {
+  width: 480px;
+  height: 480px;
+  background: rgba(255, 255, 255, 0.16);
+  top: -160px;
+  inset-inline-end: -120px;
+  animation: blob-drift 16s ease-in-out infinite alternate;
+}
+.sinan-bg::after {
+  width: 380px;
+  height: 380px;
+  background: rgba(11, 60, 66, 0.35);
+  bottom: -140px;
+  inset-inline-start: -100px;
+  animation: blob-drift 20s ease-in-out infinite alternate-reverse;
+}
+@keyframes blob-drift {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(40px, 30px) scale(1.12); }
+}
+
+/* Frosted glass panel — over the teal gradient. */
+.glass {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  box-shadow: 0 20px 50px rgba(8, 44, 49, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Light glass card — over the light content area. White, lifted, soft. */
+.glass-card {
+  /* NO backdrop-filter here: filters create a containing block that would trap
+     any fixed-position dialog rendered inside a card. The glass reads from the
+     translucent fill + border + shadow alone. */
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 28px rgba(15, 60, 66, 0.08), 0 1.5px 4px rgba(15, 60, 66, 0.05);
+  border-radius: 18px;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 0.25s ease;
+}
+.glass-card:hover {
+  box-shadow: 0 14px 40px rgba(15, 60, 66, 0.12), 0 2px 6px rgba(15, 60, 66, 0.06);
+}
+.glass-card--lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Teal glass — for panels that must stay branded on a light background. */
+.glass-teal {
+  background: linear-gradient(135deg, rgba(27, 118, 129, 0.92), rgba(58, 154, 161, 0.88));
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: 0 10px 26px rgba(8, 44, 49, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Frosted input on glass. */
+.glass-field {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.glass-field::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+.glass-field:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* ── Entrance animations ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.anim-fade-up { animation: fade-up 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) backwards; }
+.anim-fade-in { animation: fade-in 0.4s ease both; }
+.anim-scale-in { animation: scale-in 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) backwards; }
+/* Stagger helpers: .d1..d6 add delay steps. */
+.d1 { animation-delay: 0.05s; }
+.d2 { animation-delay: 0.12s; }
+.d3 { animation-delay: 0.19s; }
+.d4 { animation-delay: 0.26s; }
+.d5 { animation-delay: 0.33s; }
+.d6 { animation-delay: 0.4s; }
+
+/* Every dashboard page slides in — keyed on pathname by the shell. */
+.page-enter { animation: fade-up 0.35s cubic-bezier(0.2, 0.8, 0.3, 1) backwards; }
+
+/* Respect users who turn animations off. */
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-up, .anim-fade-in, .anim-scale-in, .page-enter { animation: none; }
+  .sinan-bg::before, .sinan-bg::after { animation: none; }
+  .glass-card, .glass-card--lift { transition: none; }
+}
+
+/* ── Branded loader: the tooth-S breathing instead of a spinner ── */
+@keyframes logo-pulse {
+  0%, 100% { transform: scale(0.9); opacity: 0.45; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+.logo-loader {
+  animation: logo-pulse 1.4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-loader { animation: none; opacity: 0.8; }
+}
+
+/* ── Login page jewellery ───────────────────────────────────────────────────── */
+
+/* Slow breathing for the hero logo — alive, not loading. */
+@keyframes logo-breathe {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 24px rgba(255, 255, 255, 0.25)); }
+  50% { transform: scale(1.045); filter: drop-shadow(0 0 44px rgba(255, 255, 255, 0.45)); }
+}
+.logo-breathe { animation: logo-breathe 4.5s ease-in-out infinite; }
+
+/* Aurora veils drifting over the teal — depth without noise. */
+@keyframes aurora-a {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-60px, 40px) rotate(8deg); }
+}
+@keyframes aurora-b {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(50px, -30px) rotate(-6deg); }
+}
+.aurora-a, .aurora-b {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  pointer-events: none;
+}
+.aurora-a {
+  width: 620px; height: 620px;
+  background: radial-gradient(circle, rgba(127, 224, 210, 0.28), transparent 65%);
+  top: -15%; inset-inline-start: -10%;
+  animation: aurora-a 18s ease-in-out infinite;
+}
+.aurora-b {
+  width: 520px; height: 520px;
+  background: radial-gradient(circle, rgba(11, 60, 66, 0.5), transparent 65%);
+  bottom: -18%; inset-inline-end: -8%;
+  animation: aurora-b 22s ease-in-out infinite;
+}
+
+/* Thin floating rings — the quiet geometry behind the card. */
+@keyframes ring-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+.login-ring {
+  position: absolute;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+  pointer-events: none;
+  animation: ring-float 9s ease-in-out infinite;
+}
+
+/* A sheen that sweeps across the CTA on hover. */
+.btn-shine { position: relative; overflow: hidden; }
+.btn-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 42%, rgba(19, 101, 112, 0.18) 50%, transparent 58%);
+  transform: translateX(-160%);
+  transition: transform 0.65s ease;
+  pointer-events: none;
+}
+.btn-shine:hover::after { transform: translateX(160%); }
+[dir='rtl'] .btn-shine::after { transform: translateX(160%); }
+[dir='rtl'] .btn-shine:hover::after { transform: translateX(-160%); }
+
+/* Login input: solid white so browser autofill blends seamlessly. */
+.login-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: #ffffff;
+  padding-inline: 14px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.login-field:focus-within {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25);
+}
+.login-field svg { color: var(--color-teal-mid); }
+.login-field input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--color-sand-900);
+  font-size: 0.875rem;
+  padding-block: 12px;
+}
+.login-field input::placeholder { color: var(--color-sand-400); }
+/* Autofill fills the WHOLE field white with dark text — no blue/teal split. */
+.login-field input:-webkit-autofill,
+.login-field input:-webkit-autofill:hover,
+.login-field input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  box-shadow: 0 0 0 1000px #ffffff inset;
+  -webkit-text-fill-color: var(--color-sand-900);
+  caret-color: var(--color-sand-900);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-breathe, .aurora-a, .aurora-b, .login-ring { animation: none; }
+  .btn-shine::after { display: none; }
+}
+
+/* ── Landing page — the خرافي layer ──────────────────────────────────────────
+ * Scroll-reveal, floating orbs, gradient text, marquee, tilt. All self-contained.
+ */
+
+/* Scroll reveal: hidden until observed, then rises + fades in. */
+.reveal { opacity: 0; transform: translateY(38px); transition: opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.reveal.in { opacity: 1; transform: translateY(0); }
+.reveal.d1 { transition-delay: 0.08s; }
+.reveal.d2 { transition-delay: 0.16s; }
+.reveal.d3 { transition-delay: 0.24s; }
+.reveal.d4 { transition-delay: 0.32s; }
+.reveal.d5 { transition-delay: 0.40s; }
+
+/* Reveal that also scales — for cards. */
+.reveal-pop { opacity: 0; transform: translateY(30px) scale(0.94); transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.reveal-pop.in { opacity: 1; transform: translateY(0) scale(1); }
+
+/* Living gradient text. */
+.gradient-text {
+  background: linear-gradient(115deg, #1b7681, #46a6ac, #7fe0d2, #46a6ac, #1b7681);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-slide 8s ease infinite;
+}
+@keyframes gradient-slide { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+/* White version for on-teal headings. */
+.shine-text {
+  background: linear-gradient(115deg, #ffffff 30%, #bff0e6 50%, #ffffff 70%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-slide 6s linear infinite;
+}
+
+/* Floating orbs behind the hero. */
+.orb { position: absolute; border-radius: 9999px; filter: blur(60px); pointer-events: none; z-index: 0; }
+@keyframes orb-float-1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(50px,-40px) scale(1.15); } }
+@keyframes orb-float-2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-45px,35px) scale(1.1); } }
+@keyframes orb-float-3 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(30px,50px); } }
+.orb-1 { animation: orb-float-1 14s ease-in-out infinite; }
+.orb-2 { animation: orb-float-2 18s ease-in-out infinite; }
+.orb-3 { animation: orb-float-3 20s ease-in-out infinite; }
+
+/* Gentle bob for hero cards / phone mock. */
+@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+.bob { animation: bob 6s ease-in-out infinite; }
+.bob-slow { animation: bob 9s ease-in-out infinite; }
+
+/* Tilt-on-hover card. */
+.tilt { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease; will-change: transform; }
+.tilt:hover { transform: translateY(-8px) rotateX(4deg) rotateY(-4deg) scale(1.02); box-shadow: 0 30px 60px rgba(15,60,66,0.18); }
+
+/* Marquee (logos / trust strip). */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-track { display: flex; width: max-content; animation: marquee 26s linear infinite; }
+[dir='rtl'] .marquee-track { animation-direction: reverse; }
+
+/* Animated count-up target (JS toggles --n). */
+.count { font-variant-numeric: tabular-nums; }
+
+/* Ring pulse for the "live" dot. */
+@keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(2.4); opacity: 0; } }
+.pulse-ring::after { content: ''; position: absolute; inset: 0; border-radius: 9999px; background: currentColor; animation: pulse-ring 1.8s ease-out infinite; }
+
+/* Sticky-nav frost that appears on scroll. */
+.nav-frost { backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); }
+
+/* Bouncing scroll hint. */
+@keyframes scroll-hint { 0%,100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(8px); opacity: 1; } }
+.scroll-hint { animation: scroll-hint 1.6s ease-in-out infinite; }
+
+/* Underline sweep on nav links. */
+.nav-link { position: relative; }
+.nav-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: -3px; height: 2px; background: currentColor; transform: scaleX(0); transform-origin: inset-inline-start; transition: transform 0.3s ease; }
+.nav-link:hover::after { transform: scaleX(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal-pop { opacity: 1; transform: none; transition: none; }
+  .gradient-text, .shine-text, .orb-1, .orb-2, .orb-3, .bob, .bob-slow, .marquee-track, .pulse-ring::after, .scroll-hint { animation: none; }
+}
+
+/* ── Smooth scrolling for the landing anchors + reveal polish ── */
+html { scroll-behavior: smooth; }
+/* Offset anchored jumps so the sticky nav never covers a heading. */
+section[id], header[id] { scroll-margin-top: 72px; }
+
+/* Scroll progress bar (JS sets --p 0→1). */
+.scroll-progress {
+  position: fixed; inset-inline: 0; top: 0; height: 3px; z-index: 60;
+  transform-origin: inset-inline-start; transform: scaleX(var(--p, 0));
+  background: linear-gradient(90deg, var(--color-teal-deep), var(--color-teal-soft), #7fe0d2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+
+/* Phones slide in from their sides on scroll. */
+.reveal-left  { opacity: 0; transform: translateX(-60px) scale(0.9); transition: opacity 0.7s cubic-bezier(0.2,0.8,0.2,1), transform 0.7s cubic-bezier(0.2,0.8,0.2,1); }
+.reveal-right { opacity: 0; transform: translateX(60px)  scale(0.9); transition: opacity 0.7s cubic-bezier(0.2,0.8,0.2,1), transform 0.7s cubic-bezier(0.2,0.8,0.2,1); }
+.reveal-left.in, .reveal-right.in { opacity: 1; transform: translateX(0) scale(1); }
+[dir='rtl'] .reveal-left  { transform: translateX(60px)  scale(0.9); }
+[dir='rtl'] .reveal-right { transform: translateX(-60px) scale(0.9); }
+[dir='rtl'] .reveal-left.in, [dir='rtl'] .reveal-right.in { transform: translateX(0) scale(1); }
+
+/* Tap-to-enlarge lightbox. */
+@keyframes lb-in { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+.lb-card { animation: lb-in 0.35s cubic-bezier(0.2,0.8,0.2,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-left, .reveal-right { opacity: 1; transform: none; transition: none; }
+  .lb-card { animation: none; }
+}

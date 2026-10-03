@@ -1,0 +1,170 @@
+/**
+ * Sinan design tokens.
+ *
+ * Tailwind 4 is CSS-first: @theme here generates the utilities, so this file is
+ * the design system. There is no tailwind.config.js.
+ *
+ * ── The palette rule ─────────────────────────────────────────────────────────
+ *
+ * NO BLUE. NO PINK. Both are excluded deliberately, and not as a matter of
+ * taste: blue is the exhausted default of medical software, and this product
+ * should not look like every other clinic system.
+ *
+ * The base is near-monochrome — warm neutrals and charcoal for all chrome,
+ * surfaces, and text. Colour is then reserved to carry MEANING ONLY:
+ *
+ *   red    conflict, overbooked, overdue debt, no-show
+ *   amber  pending, awaiting lab, due soon
+ *   green  done, paid, confirmed
+ *
+ * The rationale is functional, not aesthetic. On a dense screen, if the
+ * interface itself is colourful, status cannot be read at a glance. A quiet
+ * chrome is what makes red mean something. Every colour added to the chrome
+ * steals a little meaning from the three that matter.
+ *
+ * A single deep green accent is permitted for primary actions.
+ */
+
+@theme {
+  /* ── Neutrals ──────────────────────────────────────────────────────────────
+   * Warm, not cool. A hint of yellow/red in the hue keeps the chrome from
+   * reading as the blue-grey that every EMR already uses.
+   */
+  /* Re-themed to the mobile app's identity: cool slate neutrals under a teal
+   * accent. Variable names kept so every existing class keeps working. */
+  --color-sand-50: #f7f9fc;
+  --color-sand-100: #eff3f7;
+  --color-sand-200: #e2e9ef;
+  --color-sand-300: #cbd5e1;
+  --color-sand-400: #94a3b8;
+  --color-sand-500: #64748b;
+  --color-sand-600: #475569;
+  --color-sand-700: #334155;
+  --color-sand-800: #1e293b;
+  --color-sand-900: #0f172a;
+  --color-sand-950: #0b1220;
+
+  /* ── Accent: deep green, primary actions only ──────────────────────────────
+   * Distinct from --color-status-done below: this is "the button you press",
+   * that is "this is finished". They must not be confusable, so the accent is
+   * deeper and less saturated than the status green.
+   */
+  --color-accent-50: #e2faf4;
+  --color-accent-100: #c3efe8;
+  --color-accent-500: #0d9488;
+  --color-accent-600: #0b7e74;
+  --color-accent-700: #0a6b62;
+  --color-accent-800: #085a52;
+
+  /* The teal gradient family the app's headers use. */
+  --color-teal-deep: #1b7681;
+  --color-teal-mid: #2a8a93;
+  --color-teal-soft: #46a6ac;
+
+  /* ── Status: the ONLY three hues in the interface ──────────────────────────
+   * Each has a surface (tint for row/chip backgrounds), a border, and a
+   * foreground that meets contrast on that surface.
+   */
+
+  /* conflict, overbooked, overdue debt, no-show */
+  --color-danger-surface: #fdf0ee;
+  --color-danger-border: #e8b4aa;
+  --color-danger: #a3341f;
+  --color-danger-strong: #7d2716;
+
+  /* pending, awaiting lab, due soon */
+  --color-warn-surface: #fdf6e7;
+  --color-warn-border: #e6cf94;
+  --color-warn: #8a6410;
+  --color-warn-strong: #6b4d0c;
+
+  /* done, paid, confirmed */
+  --color-ok-surface: #eef5ee;
+  --color-ok-border: #a9c9ad;
+  --color-ok: #2f6b38;
+  --color-ok-strong: #23522b;
+
+  /* ── Odontogram ────────────────────────────────────────────────────────────
+   * MUST stay distinguishable from the status language above. A dentist reads
+   * this chart thousands of times; a caries lesion must never be mistaken for a
+   * scheduling conflict.
+   *
+   * So surface conditions are carried by HATCHING, PATTERN and OUTLINE WEIGHT
+   * rather than hue (see odontogram-patterns.tsx). These are deliberately
+   * desaturated inks — they read as chart notation, not as status.
+   */
+  --color-tooth-sound: #ffffff;
+  --color-tooth-outline: #4f4a42;
+  --color-tooth-caries: #3d3833; /* charcoal fill + dot pattern */
+  --color-tooth-amalgam: #6b6459; /* solid grey — how amalgam actually reads */
+  --color-tooth-composite: #d6d0c6; /* light grey + diagonal hatch */
+  --color-tooth-missing: #e8e4dd;
+  --color-tooth-selected: var(--color-accent-500);
+
+  /* ── Type ──────────────────────────────────────────────────────────────────
+   * ~13–14px base. This is a data-dense EMR for a dentist or a busy
+   * receptionist who needs a lot on one screen — not a consumer app. Do not add
+   * generous whitespace, hero sections, or oversized cards to the dashboard.
+   */
+  --text-2xs: 0.6875rem; /* 11px — dense table meta */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.8125rem; /* 13px — dashboard base */
+  --text-base: 0.875rem; /* 14px */
+  --text-lg: 1rem; /* 16px */
+  --text-xl: 1.125rem;
+  --text-2xl: 1.375rem;
+
+  --leading-tight: 1.25;
+  --leading-snug: 1.4;
+
+  /* Latin digits everywhere, including Arabic — Lebanese convention. Eastern
+   * Arabic numerals would look wrong to these users. Enforced in the `lang`
+   * setup and by numberingSystem: 'latn' in the formatters. */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Arabic', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Dense rows. A calendar day must fit on one screen. */
+  --spacing-row: 1.75rem;
+  --radius-sm: 3px;
+  --radius-md: 5px;
+}
+
+/* ── Tabular numerals ────────────────────────────────────────────────────────
+ * Money, times and tooth numbers must align in columns. Applied broadly rather
+ * than per-component: a proportional digit in a price column is a visual bug,
+ * and remembering a utility class on every cell is not a strategy.
+ */
+:root {
+  font-variant-numeric: tabular-nums;
+  -webkit-font-feature-settings: 'tnum';
+  font-feature-settings: 'tnum';
+}
+
+/* ── RTL ─────────────────────────────────────────────────────────────────────
+ * Arabic is first-class and RTL. Direction is set on <html dir> by the layout.
+ *
+ * USE LOGICAL PROPERTIES THROUGHOUT: margin-inline-start over margin-left,
+ * Tailwind's ps- over pl-, border-s over border-l. The logical utilities handle
+ * both directions for free. Retrofitting RTL is painful, which is why it is
+ * here from the first component rather than a later pass.
+ *
+ * The exceptions below are the cases where a physical direction is genuinely
+ * meant.
+ */
+
+/* Numbers and times never flip: a clock is 09:00 in both languages, and an
+ * amount is 1,250.00 whichever way the sentence runs. */
+[dir='rtl'] .numeric,
+[dir='rtl'] time,
+[dir='rtl'] .tabular {
+  direction: ltr;
+  unicode-bidi: embed;
+  text-align: end;
+}
+
+/* The odontogram is anatomy, not text. The patient's upper-right quadrant is on
+ * the viewer's left in both languages — mirroring it would put the wrong teeth
+ * under the wrong labels, which is a clinical error, not a layout preference. */
+[dir='rtl'] .odontogram {
+  direction: ltr;
+}
