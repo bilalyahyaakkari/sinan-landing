@@ -18,7 +18,9 @@
       "doctors": "For doctors",
       "packages": "Packages",
       "join": "Join us",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "contact": "Contact us",
+      "menu": "Menu"
     },
     "hero": {
       "title": "Your dental care,",
@@ -122,7 +124,12 @@
       "formNote": "We'll call you — nothing is charged now.",
       "sentTitle": "Request received!",
       "sentBody": "Our team will contact you within 24 hours to go over the details.",
-      "failed": "Could not send — try again."
+      "failed": "Could not send — try again.",
+      "phone": "Phone number",
+      "errName": "Please enter your name.",
+      "errPhone": "That phone number does not look right. Write it like +961 3 123456 or 03 123456.",
+      "errClinic": "Please enter your clinic's name.",
+      "already": "We already have your request — our team will call you soon."
     },
     "footer": {
       "tagline": "Dental care, in your pocket.",
@@ -138,6 +145,18 @@
       "t2Body": "Your next visit, doctors near you, and every recent booking, the moment you open the app.",
       "t3Title": "Your teeth, online",
       "t3Body": "See the exact dental chart your dentist drew — your health, always in your hand."
+    },
+    "contact": {
+      "title": "Contact Sinan",
+      "hint": "Reach our team any of these ways.",
+      "unavailable": "Contact details are not set yet.",
+      "whatsapp": "WhatsApp",
+      "phone": "Phone",
+      "email": "E-mail",
+      "close": "Close",
+      "loading": "One moment…",
+      "loadFailed": "We could not load our contact details. Check your connection and try again.",
+      "retry": "Try again"
     }
   },
   "legalPublic": {
@@ -145,6 +164,13 @@
     "privacyTitle": "Privacy Policy",
     "appName": "Sinan — dental care, in your pocket",
     "unavailable": "This document is being prepared. Please check back soon.",
-    "footer": "© Sinan. Questions? Contact us from the app menu."
+    "footer": "© Sinan. All rights reserved.",
+    "home": "Back to the home page"
+  },
+  "meta": {
+    "title": "Sinan — your dental care, in your pocket",
+    "description": "Sinan is a Lebanese dental platform: patients find a dentist and book in seconds, and clinics run their appointments, records and payments from one place.",
+    "privacyTitle": "Privacy Policy — Sinan",
+    "termsTitle": "Terms & Conditions — Sinan"
   }
 }

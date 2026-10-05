@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 
@@ -122,6 +122,13 @@ function Phone({ src, className, style, onClick }: { src: string; className?: st
   return (
     <div
       onClick={onClick}
+      {...(onClick
+        ? {
+            role: 'button',
+            tabIndex: 0,
+            onKeyDown: (e: React.KeyboardEvent) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onClick()),
+          }
+        : {})}
       className={`group/phone relative rounded-[2.4rem] border-[7px] border-slate-900 bg-slate-900 shadow-2xl transition-transform duration-300 ${onClick ? 'cursor-pointer hover:!scale-105 hover:z-20' : ''} ${className ?? ''}`}
       style={{ width: 220, height: 464, ...style }}
     >
@@ -148,13 +155,141 @@ function Browser({ src }: { src: string }) {
           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
-          app.sinan.app
+          app.sinansmile.online
         </div>
       </div>
       <div className="w-full bg-white">
         <Shot src={src} alt="Sinan dashboard" />
       </div>
     </div>
+  );
+}
+
+/** How to reach Sinan — set by the platform admin; any of the three may be empty. */
+interface SupportInfo {
+  whatsapp: string | null;
+  phone: string | null;
+  email: string | null;
+}
+
+/** Loading, loaded, or failed — "not set" and "could not load" are different answers. */
+type ContactState =
+  | { status: 'closed' }
+  | { status: 'loading' }
+  | { status: 'error' }
+  | { status: 'ready'; info: SupportInfo };
+
+function ContactDialog({
+  state,
+  onRetry,
+  onClose,
+}: {
+  state: ContactState;
+  onRetry: () => void;
+  onClose: () => void;
+}) {
+  const t = useTranslations('marketing.contact');
+  const info = state.status === 'ready' ? state.info : null;
+  const empty = !info?.phone && !info?.email && !info?.whatsapp;
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // A dialog owns the keyboard while it is open: Escape leaves, focus starts
+  // inside it, and the page behind does not scroll away underneath.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    closeRef.current?.focus();
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = overflow;
+    };
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-[100] grid place-items-center bg-black/50 p-4" onClick={onClose}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="contact-title"
+        onClick={(e) => e.stopPropagation()}
+        className="anim-scale-in w-full max-w-sm rounded-3xl bg-white p-6 text-sand-900 shadow-2xl"
+      >
+        <h2 id="contact-title" className="text-base font-bold">{t('title')}</h2>
+        <p className="mt-1 text-xs text-sand-500">
+          {state.status === 'loading'
+            ? t('loading')
+            : state.status === 'error'
+              ? t('loadFailed')
+              : empty
+                ? t('unavailable')
+                : t('hint')}
+        </p>
+        {state.status === 'error' && (
+          <button
+            onClick={onRetry}
+            className="mt-3 rounded-xl bg-[var(--color-teal-deep)] px-3 py-2 text-xs font-semibold text-white"
+          >
+            {t('retry')}
+          </button>
+        )}
+        <div className="mt-4 space-y-2">
+          {info?.whatsapp && (
+            <ContactRow
+              href={`https://wa.me/${info.whatsapp.replace(/[^0-9]/g, '')}`}
+              label={t('whatsapp')}
+              value={info.whatsapp}
+              icon="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            />
+          )}
+          {info?.phone && (
+            <ContactRow
+              href={`tel:${info.phone}`}
+              label={t('phone')}
+              value={info.phone}
+              icon="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+            />
+          )}
+          {info?.email && (
+            <ContactRow
+              href={`mailto:${info.email}`}
+              label={t('email')}
+              value={info.email}
+              icon="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
+          )}
+        </div>
+        <button
+          ref={closeRef}
+          onClick={onClose}
+          className="mt-5 w-full rounded-2xl border border-sand-200 px-3 py-2.5 text-xs font-semibold text-sand-700 transition-colors hover:bg-sand-50"
+        >
+          {t('close')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ContactRow({ href, label, value, icon }: { href: string; label: string; value: string; icon: string }) {
+  return (
+    <a
+      href={href}
+      target={href.startsWith('http') ? '_blank' : undefined}
+      rel="noreferrer"
+      className="flex items-center gap-3 rounded-2xl border border-sand-200 px-3.5 py-3 text-start transition-colors hover:bg-sand-50"
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-teal-deep)] text-white">
+        <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+          <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
+        </svg>
+      </span>
+      <span className="min-w-0">
+        <span className="block text-2xs font-semibold text-sand-500">{label}</span>
+        <span className="block truncate text-sm font-semibold text-sand-900" dir="ltr">{value}</span>
+      </span>
+    </a>
   );
 }
 
@@ -212,6 +347,24 @@ export function Landing() {
   // Real plans from the dashboard — what the admin sets here is what shows here.
   const [plans, setPlans] = useState<PublicPlan[] | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
+  // Contact details come from the admin's settings — never written into the page.
+  const [contact, setContact] = useState<ContactState>({ status: 'closed' });
+  // The dialog opens on the click, not after the request: on a slow connection
+  // a button that appears to do nothing gets pressed three times.
+  const openContact = () => {
+    setMenuOpen(false);
+    setContact({ status: 'loading' });
+    fetch(`${API}/discovery/support-info`)
+      .then((r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json() as Promise<SupportInfo>;
+      })
+      .then((info) => setContact({ status: 'ready', info }))
+      .catch(() => setContact({ status: 'error' }));
+  };
+  const closeContact = useCallback(() => setContact({ status: 'closed' }), []);
+  // Phones have no room for the nav links, so they fold into a menu.
+  const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setLightbox(null);
     window.addEventListener('keydown', onKey);
@@ -268,6 +421,7 @@ export function Landing() {
             <a href="#doctors" className="nav-link transition-colors hover:opacity-80">{t('nav.doctors')}</a>
             <a href="#packages" className="nav-link transition-colors hover:opacity-80">{t('nav.packages')}</a>
             <a href="#join" className="nav-link transition-colors hover:opacity-80">{t('nav.join')}</a>
+            <button onClick={openContact} className="nav-link transition-colors hover:opacity-80">{t('nav.contact')}</button>
           </div>
           {/* Language is a link, not a detector: the visitor switches by choice. */}
           <Link
@@ -280,7 +434,36 @@ export function Landing() {
           >
             {ar ? 'English' : 'العربية'}
           </Link>
+          <button
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label={t('nav.menu')}
+            aria-expanded={menuOpen}
+            className={`ms-2 flex h-9 w-9 items-center justify-center rounded-full md:hidden ${
+              scrolled ? 'bg-[var(--color-teal-deep)] text-white' : 'glass text-white'
+            }`}
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d={menuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 7h16M4 12h16M4 17h16'} />
+            </svg>
+          </button>
         </div>
+        {menuOpen && (
+          <div className="mx-4 mb-3 rounded-2xl bg-white p-2 text-sm font-semibold text-sand-800 shadow-xl md:hidden">
+            {(['patients', 'doctors', 'packages', 'join'] as const).map((key) => (
+              <a
+                key={key}
+                href={`#${key}`}
+                onClick={() => setMenuOpen(false)}
+                className="block rounded-xl px-4 py-3 transition-colors hover:bg-sand-50"
+              >
+                {t(`nav.${key}`)}
+              </a>
+            ))}
+            <button onClick={openContact} className="block w-full rounded-xl px-4 py-3 text-start transition-colors hover:bg-sand-50">
+              {t('nav.contact')}
+            </button>
+          </div>
+        )}
       </nav>
 
       {/* ── Hero ── */}
@@ -392,13 +575,17 @@ export function Landing() {
           {/* Phone screenshots — a floating trio. Drop your PNGs in public/screenshots/. */}
           <div ref={phoneStageRef} className="mb-16 flex items-end justify-center will-change-transform" style={{ transformStyle: 'preserve-3d' }}>
             <div className="reveal-left hidden sm:block">
-              <Phone src="/screenshots/app-2.png" className="bob-slow -me-8 opacity-90" style={{ transform: 'scale(0.82) rotate(-6deg)' }} onClick={() => setLightbox('/screenshots/app-2.png')} />
+              <div className="-me-8 opacity-90" style={{ transform: 'scale(0.82) rotate(-6deg)' }}>
+                <Phone src="/screenshots/app-2.png" className="bob-slow" onClick={() => setLightbox('/screenshots/app-2.png')} />
+              </div>
             </div>
             <div className="reveal-pop z-10">
               <Phone src="/screenshots/app-1.png" className="bob" onClick={() => setLightbox('/screenshots/app-1.png')} />
             </div>
             <div className="reveal-right hidden sm:block">
-              <Phone src="/screenshots/app-3.png" className="bob-slow -ms-8 opacity-90" style={{ transform: 'scale(0.82) rotate(6deg)' }} onClick={() => setLightbox('/screenshots/app-3.png')} />
+              <div className="-ms-8 opacity-90" style={{ transform: 'scale(0.82) rotate(6deg)' }}>
+                <Phone src="/screenshots/app-3.png" className="bob-slow" onClick={() => setLightbox('/screenshots/app-3.png')} />
+              </div>
             </div>
           </div>
 
@@ -438,7 +625,7 @@ export function Landing() {
           </div>
 
           {/* Dashboard screenshot — drop your PNG in public/screenshots/dash-1.png */}
-          <div ref={browserStageRef} className="reveal-pop mx-auto mb-16 max-w-3xl cursor-pointer will-change-transform" style={{ transformStyle: 'preserve-3d' }} onClick={() => setLightbox('/screenshots/dash-1.png')}>
+          <div ref={browserStageRef} className="reveal-pop mx-auto mb-16 max-w-3xl cursor-pointer will-change-transform" style={{ transformStyle: 'preserve-3d' }} role="button" tabIndex={0} onClick={() => setLightbox('/screenshots/dash-1.png')} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setLightbox('/screenshots/dash-1.png'))}>
             <Browser src="/screenshots/dash-1.png" />
           </div>
 
@@ -490,7 +677,7 @@ export function Landing() {
           <div className={`grid items-stretch gap-5 ${plans && plans.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 md:mx-auto md:max-w-2xl'}`}>
             {(plans ?? []).map((plan, i) => {
               const featured = plans!.length > 1 && plan.features.length === Math.max(...plans!.map((p) => p.features.length)) && i === plans!.map((p) => p.features.length).lastIndexOf(Math.max(...plans!.map((p) => p.features.length)));
-              const lines = [t('packages.baseCalendar'), t('packages.baseRecords'), ...plan.features.map((f) => t(`packages.feat.${f}`, { defaultValue: f }))];
+              const lines = [t('packages.baseCalendar'), t('packages.baseRecords'), ...plan.features.map((f) => (t.has(`packages.feat.${f}`) ? t(`packages.feat.${f}`) : f))];
               return (
                 <div
                   key={plan.id}
@@ -574,12 +761,16 @@ export function Landing() {
       {/* Tap-to-enlarge lightbox */}
       {lightbox && (
         <div
+          role="dialog"
+          aria-modal="true"
           className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 p-6 backdrop-blur-sm"
           onClick={() => setLightbox(null)}
         >
           <button
+            autoFocus
+            onClick={() => setLightbox(null)}
             className="absolute end-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-            aria-label="close"
+            aria-label={t('contact.close')}
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -595,6 +786,8 @@ export function Landing() {
         </div>
       )}
 
+      {contact.status !== 'closed' && <ContactDialog state={contact} onRetry={openContact} onClose={closeContact} />}
+
       {/* ── Footer ── */}
       <footer className="bg-sand-950 py-12 text-center text-white/60">
         <div className="mx-auto max-w-5xl px-5">
@@ -607,12 +800,26 @@ export function Landing() {
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
             <Link href="/privacy" className="transition-colors hover:text-white">{t('footer.privacy')}</Link>
             <Link href="/terms" className="transition-colors hover:text-white">{t('footer.terms')}</Link>
+            <button onClick={openContact} className="transition-colors hover:text-white">{t('nav.contact')}</button>
           </div>
           <p className="mt-6 text-2xs text-white/40">{t('footer.copyright')}</p>
         </div>
       </footer>
     </div>
   );
+}
+
+/**
+ * A phone number the way people actually type it → the +digits form the API
+ * stores. "03 123 456", "+961 3 123456" and "00961-3-123456" are one number.
+ */
+function normalizePhone(raw: string): string {
+  let v = raw.replace(/[\s\-().]/g, '');
+  if (v.startsWith('00')) v = `+${v.slice(2)}`;
+  // A local Lebanese number: drop the trunk zero, add the country code.
+  else if (/^0\d{7,8}$/.test(v)) v = `+961${v.slice(1)}`;
+  else if (/^\d{7,8}$/.test(v)) v = `+961${v}`;
+  return v;
 }
 
 /** The doctor lead form — posts to the public /discovery/leads endpoint. */
@@ -626,10 +833,17 @@ function LeadForm() {
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
 
-  const valid = fullName.trim().length >= 2 && /^\+\d{8,15}$/.test(phone.trim()) && clinicName.trim().length >= 2;
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (busy) return;
 
-  const submit = async () => {
-    if (!valid || busy) return;
+    // The button is never greyed out with no explanation: a press that cannot
+    // go through says which field is wrong.
+    const number = normalizePhone(phone);
+    if (fullName.trim().length < 2) return setError(t('join.errName'));
+    if (!/^\+\d{8,15}$/.test(number)) return setError(t('join.errPhone'));
+    if (clinicName.trim().length < 2) return setError(t('join.errClinic'));
+
     setBusy(true);
     setError(null);
     try {
@@ -638,18 +852,17 @@ function LeadForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fullName: fullName.trim(),
-          phone: phone.trim(),
+          phone: number,
           clinicName: clinicName.trim(),
           ...(area.trim() ? { governorate: area.trim() } : {}),
         }),
       });
-      if (!res.ok) {
-        const b = (await res.json().catch(() => null)) as { message?: string } | null;
-        throw new Error(b?.message ?? 'error');
-      }
+      // 409: this number already asked a few minutes ago — say so, kindly.
+      if (res.status === 409) return setError(t('join.already'));
+      if (!res.ok) return setError(t('join.failed'));
       setSent(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('join.failed'));
+    } catch {
+      setError(t('join.failed'));
     } finally {
       setBusy(false);
     }
@@ -672,23 +885,35 @@ function LeadForm() {
   const field = 'w-full rounded-xl border border-white/25 bg-white/12 px-4 py-3 text-sm text-white placeholder-white/45 outline-none transition-all focus:border-white/70 focus:bg-white/20';
 
   return (
-    <div className="glass rounded-3xl p-7">
+    <form onSubmit={(e) => void submit(e)} noValidate className="glass rounded-3xl p-7">
       <div className="mb-4 text-lg font-black text-white">{t('join.formTitle')}</div>
-      {error && <div className="mb-3 rounded-xl bg-red-500/25 px-3 py-2 text-xs text-white">{error}</div>}
+      {error && <div role="alert" className="mb-3 rounded-xl bg-red-500/25 px-3 py-2 text-xs text-white">{error}</div>}
       <div className="space-y-3">
-        <input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={t('join.name')} className={field} />
-        <input value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" placeholder="+961 3 123456" className={field} />
-        <input value={clinicName} onChange={(e) => setClinicName(e.target.value)} placeholder={t('join.clinic')} className={field} />
-        <input value={area} onChange={(e) => setArea(e.target.value)} placeholder={t('join.area')} className={field} />
+        <label className="block">
+          <span className="sr-only">{t('join.name')}</span>
+          <input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={t('join.name')} autoComplete="name" maxLength={120} className={field} />
+        </label>
+        <label className="block">
+          <span className="sr-only">{t('join.phone')}</span>
+          <input value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" type="tel" inputMode="tel" autoComplete="tel" placeholder="+961 3 123456" maxLength={24} className={field} />
+        </label>
+        <label className="block">
+          <span className="sr-only">{t('join.clinic')}</span>
+          <input value={clinicName} onChange={(e) => setClinicName(e.target.value)} placeholder={t('join.clinic')} autoComplete="organization" maxLength={160} className={field} />
+        </label>
+        <label className="block">
+          <span className="sr-only">{t('join.area')}</span>
+          <input value={area} onChange={(e) => setArea(e.target.value)} placeholder={t('join.area')} maxLength={40} className={field} />
+        </label>
       </div>
       <button
-        onClick={() => void submit()}
-        disabled={!valid || busy}
+        type="submit"
+        disabled={busy}
         className="btn-shine mt-5 w-full rounded-2xl bg-white py-3.5 text-sm font-bold text-[var(--color-teal-deep)] shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-40 disabled:hover:translate-y-0"
       >
         {busy ? '…' : t('join.send')}
       </button>
       <p className="mt-3 text-center text-2xs text-white/50">{t('join.formNote')}</p>
-    </div>
+    </form>
   );
 }

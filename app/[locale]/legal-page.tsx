@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/routing';
 
 /**
  * The public legal pages — no sign-in, crawlable, linkable from the App Store.
@@ -39,17 +40,26 @@ export async function LegalPage({ locale, doc }: { locale: string; doc: 'terms' 
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="Sinan" className="h-8 w-8 object-contain" />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <h1 className="text-xl font-extrabold text-white">{doc === 'terms' ? t('termsTitle') : t('privacyTitle')}</h1>
             <p className="text-2xs text-white/70">{t('appName')}</p>
           </div>
+          {/* The same document in the other language — a link, never a guess. */}
+          <Link href={`/${doc}`} locale={ar ? 'en' : 'ar'} className="glass rounded-full px-3 py-1.5 text-xs font-bold text-white">
+            {ar ? 'English' : 'العربية'}
+          </Link>
         </div>
 
         <article className="glass anim-scale-in d1 rounded-3xl p-6 sm:p-8">
           <div className="text-sm leading-relaxed whitespace-pre-wrap text-white/95">{text}</div>
         </article>
 
-        <p className="anim-fade-up d3 mt-6 text-center text-2xs text-white/50">{t('footer')}</p>
+        <p className="anim-fade-up d3 mt-6 text-center text-xs">
+          <Link href="/" className="font-semibold text-white/85 underline underline-offset-4 hover:text-white">
+            {t('home')}
+          </Link>
+        </p>
+        <p className="anim-fade-up d3 mt-3 text-center text-2xs text-white/50">{t('footer')}</p>
       </div>
     </main>
   );
