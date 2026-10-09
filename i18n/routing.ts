@@ -14,8 +14,10 @@ export const routing = defineRouting({
   // then theirs to switch, and the choice is remembered.
   localeDetection: false,
   // A year, not the browser session: the language someone picked should still
-  // be theirs next week (proxy.ts sends "/" to it).
-  localeCookie: { maxAge: 60 * 60 * 24 * 365 },
+  // be theirs next week (proxy.ts sends "/" to it). `secure` in a production
+  // build, so the cookie never travels over plain http; development runs on
+  // http://localhost, where not every browser would store a Secure cookie.
+  localeCookie: { maxAge: 60 * 60 * 24 * 365, secure: process.env.NODE_ENV === 'production' },
 });
 
 export type Locale = (typeof routing.locales)[number];

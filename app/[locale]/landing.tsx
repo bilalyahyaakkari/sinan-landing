@@ -3,8 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3300';
+import { API_URL as API } from '@/lib/config';
 
 interface PublicPlan {
   id: string;
@@ -119,6 +118,7 @@ function ShotContain({ src, alt }: { src: string; alt: string }) {
 
 /** A phone with a screenshot filling its screen; Dynamic-Island pill centered. */
 function Phone({ src, className, style, onClick }: { src: string; className?: string; style?: React.CSSProperties; onClick?: () => void }) {
+  const t = useTranslations('marketing');
   return (
     <div
       onClick={onClick}
@@ -133,7 +133,7 @@ function Phone({ src, className, style, onClick }: { src: string; className?: st
       style={{ width: 220, height: 464, ...style }}
     >
       <div className="relative h-full w-full overflow-hidden rounded-[1.9rem] bg-black">
-        <ShotContain src={src} alt="Sinan app" />
+        <ShotContain src={src} alt={t('patients.shotAlt')} />
         {/* Dynamic-Island pill — dead-centered above the screenshot */}
         <div className="pointer-events-none absolute inset-x-0 top-2 z-10 flex justify-center">
           <div className="h-[22px] w-[74px] rounded-full bg-black" />
@@ -145,6 +145,7 @@ function Phone({ src, className, style, onClick }: { src: string; className?: st
 
 /** A browser window with a dashboard screenshot inside. */
 function Browser({ src }: { src: string }) {
+  const t = useTranslations('marketing');
   return (
     <div className="overflow-hidden rounded-2xl border border-white/20 bg-slate-800 shadow-2xl">
       <div className="flex items-center gap-1.5 bg-slate-800 px-4 py-2.5">
@@ -155,11 +156,11 @@ function Browser({ src }: { src: string }) {
           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
-          app.sinansmile.online
+          app.sinansmile.com
         </div>
       </div>
       <div className="w-full bg-white">
-        <Shot src={src} alt="Sinan dashboard" />
+        <Shot src={src} alt={t('doctors.shotAlt')} />
       </div>
     </div>
   );
@@ -514,7 +515,7 @@ export function Landing() {
             ))}
           </div>
 
-          <a href="#about" className="scroll-hint mt-10 text-white/60 sm:mt-14" aria-label="scroll">
+          <a href="#about" className="scroll-hint mt-10 text-white/60 sm:mt-14" aria-label={t('hero.scroll')}>
             <svg className="mx-auto h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
@@ -822,48 +823,99 @@ function normalizePhone(raw: string): string {
   return v;
 }
 
-/** The doctor lead form — posts to the public /discovery/leads endpoint. */
+/**
+ * Nobody fills four fields in less than this. A script does — it posts the
+ * moment the page arrives — so a form sent sooner is held back until this
+ * much time has passed since it was first drawn.
+ */
+const MIN_FILL_MS = 3000;
+
+/**
+ * The doctor lead form — posts to the public /discovery/leads endpoint.
+ *
+ * It is the one thing on this site anyone can write to, with no sign-in, so it
+ * is what a bot finds. Two quiet defences here, beside the API's own limit per
+ * address:
+ *
+ *   the `website` field   a field no person sees (hidden by CSS, out of the tab
+ *                         order, off for autofill and screen readers) and so
+ *                         no person fills. Bots fill every field they find.
+ *                         It is sent as it is: the API answers "ok" to a
+ *                         filled one and stores nothing, so the bot learns
+ *                         nothing from being caught.
+ *   the minimum time      see MIN_FILL_MS. A fast human is not told off —
+ *                         the button simply stays busy for the remainder.
+ *
+ * Neither is a wall, and neither is meant to be: they cost a real doctor
+ * nothing, and they turn away the scripts that do not look.
+ */
 function LeadForm() {
   const t = useTranslations('marketing');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('+961');
   const [clinicName, setClinicName] = useState('');
   const [area, setArea] = useState('');
+  const [website, setWebsite] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  // When the form was first on screen. Set in an effect, not while rendering:
+  // the server renders this too, and its clock is not the visitor's.
+  const shownAt = useRef<number | null>(null);
+  useEffect(() => {
+    shownAt.current = Date.now();
+  }, []);
+  // What stops a second send. `busy` only greys the button: it is state, read
+  // as it was when the form was last drawn, so two submits in the same instant
+  // both saw "not busy" and both went out. A ref is read as it is now.
+  const sending = useRef(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (busy) return;
+    if (sending.current) return;
 
     // The button is never greyed out with no explanation: a press that cannot
     // go through says which field is wrong.
     const number = normalizePhone(phone);
     if (fullName.trim().length < 2) return setError(t('join.errName'));
-    if (!/^\+\d{8,15}$/.test(number)) return setError(t('join.errPhone'));
+    if (!/^\+[1-9]\d{7,14}$/.test(number)) return setError(t('join.errPhone'));
     if (clinicName.trim().length < 2) return setError(t('join.errClinic'));
 
+    sending.current = true;
     setBusy(true);
     setError(null);
     try {
+      // Too soon to have been typed: wait out the rest, saying nothing.
+      const tooSoon = MIN_FILL_MS - (Date.now() - (shownAt.current ?? Date.now()));
+      if (tooSoon > 0) await new Promise((done) => setTimeout(done, tooSoon));
+
       const res = await fetch(`${API}/discovery/leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        // Exactly the fields the API takes — it refuses a body with any other.
         body: JSON.stringify({
           fullName: fullName.trim(),
           phone: number,
           clinicName: clinicName.trim(),
           ...(area.trim() ? { governorate: area.trim() } : {}),
+          website,
         }),
       });
+      // Nothing in the answer is used, but it is read to its end: a response
+      // left unread stays open in the browser until the page is left, and is
+      // then counted as a request that failed.
+      await res.text().catch(() => '');
       // 409: this number already asked a few minutes ago — say so, kindly.
       if (res.status === 409) return setError(t('join.already'));
+      // 429: too many from this address. The API says how long; "a few
+      // minutes" is as exact as a visitor needs.
+      if (res.status === 429) return setError(t('join.tooMany'));
       if (!res.ok) return setError(t('join.failed'));
       setSent(true);
     } catch {
       setError(t('join.failed'));
     } finally {
+      sending.current = false;
       setBusy(false);
     }
   };
@@ -905,6 +957,11 @@ function LeadForm() {
           <span className="sr-only">{t('join.area')}</span>
           <input value={area} onChange={(e) => setArea(e.target.value)} placeholder={t('join.area')} maxLength={40} className={field} />
         </label>
+        {/* The field for bots — see above. Hidden with a class and not with
+            `display: none` or type="hidden", which the better scripts skip. */}
+        <div className="sr-only" aria-hidden="true">
+          <input name="website" value={website} onChange={(e) => setWebsite(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" maxLength={200} />
+        </div>
       </div>
       <button
         type="submit"

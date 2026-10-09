@@ -7,7 +7,7 @@ import { localeDirection, routing, type Locale } from '@/i18n/routing';
 import '../globals.css';
 
 /** Where this site lives — absolute URLs in link previews and the sitemap are built from it. */
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://sinansmile.online';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://sinansmile.com';
 
 /** Title and description in the visitor's language, plus what a shared link shows. */
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {

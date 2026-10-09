@@ -30,7 +30,8 @@
       "ctaDoctor": "I'm a doctor",
       "stat1": "features in one app",
       "stat2": "booking, any hour",
-      "stat3": "your data, private"
+      "stat3": "your data, private",
+      "scroll": "Scroll down"
     },
     "about": {
       "eyebrow": "Who we are",
@@ -61,7 +62,8 @@
       "p6Title": "Rate your visit",
       "p6Body": "Share an honest review after each visit and help others choose well.",
       "iosSoon": "App Store — soon",
-      "androidSoon": "Google Play — soon"
+      "androidSoon": "Google Play — soon",
+      "shotAlt": "A screen from the Sinan app"
     },
     "doctors": {
       "eyebrow": "For doctors",
@@ -78,7 +80,8 @@
       "d5Title": "Digital odontogram",
       "d5Body": "A precise, tap-to-edit dental chart your patients can see too.",
       "d6Title": "New patients",
-      "d6Body": "Appear in the marketplace and accept bookings from the app."
+      "d6Body": "Appear in the marketplace and accept bookings from the app.",
+      "shotAlt": "The Sinan dashboard"
     },
     "how": {
       "title": "Getting started is simple.",
@@ -129,7 +132,8 @@
       "errName": "Please enter your name.",
       "errPhone": "That phone number does not look right. Write it like +961 3 123456 or 03 123456.",
       "errClinic": "Please enter your clinic's name.",
-      "already": "We already have your request — our team will call you soon."
+      "already": "We already have your request — our team will call you soon.",
+      "tooMany": "Too many requests — please try again in a few minutes."
     },
     "footer": {
       "tagline": "Dental care, in your pocket.",
@@ -165,6 +169,11 @@
     "appName": "Sinan — dental care, in your pocket",
     "unavailable": "This document is being prepared. Please check back soon.",
     "footer": "© Sinan. All rights reserved.",
+    "home": "Back to the home page"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This address does not lead anywhere. It may be mistyped, or the page may have moved.",
     "home": "Back to the home page"
   },
   "meta": {

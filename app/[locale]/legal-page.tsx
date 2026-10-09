@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
+import { API_URL as API } from '@/lib/config';
 
 /**
  * The public legal pages — no sign-in, crawlable, linkable from the App Store.
@@ -7,8 +8,6 @@ import { Link } from '@/i18n/routing';
  * Content comes live from the platform settings the admin edits; the page
  * renders on the server so the URL works for Apple's reviewer with JS off.
  */
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3300';
-
 interface Legal {
   termsEn: string | null;
   termsAr: string | null;

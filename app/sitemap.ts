@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://sinansmile.online';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://sinansmile.com';
 
 /** Every public page, in both languages, each pointing at its twin. */
 export default function sitemap(): MetadataRoute.Sitemap {
